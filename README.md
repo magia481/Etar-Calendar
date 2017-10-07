@@ -42,3 +42,4 @@ gradle build
 
 ### Comment by magia481 users
 - First change by agsener
+- Second change by makinci
