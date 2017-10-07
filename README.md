@@ -39,3 +39,6 @@ gradle build
 - ``fix_strings_and_import.py`` was created to fix a build problem and rename imports of R.java
 - get time zone data from http://www.iana.org/time-zones write ``backward`` and ``zone.tab`` to assets and to assets of https://github.com/dschuermann/standalone-calendar-timezonepicker
 - comment out code in https://github.com/dschuermann/standalone-calendar-frameworks-ex
+
+### Comment by magia481 users
+- First change by agsener
