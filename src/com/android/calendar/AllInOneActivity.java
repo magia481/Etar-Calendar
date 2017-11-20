@@ -57,6 +57,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -860,6 +861,7 @@ public class AllInOneActivity extends AbstractCalendarActivity implements EventH
             t.setToNow();
             extras |= CalendarController.EXTRA_GOTO_TODAY;
         } else if (itemId == R.id.action_goto) {
+            //
             Time todayTime;
             t = new Time(mTimeZone);
             t.set(mController.getTime());
@@ -877,6 +879,13 @@ public class AllInOneActivity extends AbstractCalendarActivity implements EventH
                     selectedTime.month = monthOfYear;
                     selectedTime.monthDay = dayOfMonth;
                     long extras = CalendarController.EXTRA_GOTO_TIME | CalendarController.EXTRA_GOTO_DATE;
+                    //Creating alert dialog to show how many events a user has
+                    //Number of events will be added
+                    String selectedDate = dayOfMonth+"/"+monthOfYear+"/"+year;
+                    AlertDialog.Builder aDialog =
+                            new AlertDialog.Builder(AllInOneActivity.this);
+                    aDialog.setMessage("You have "+"x"+" events at "+ selectedDate);
+                    aDialog.create().show();
                     mController.sendEvent(this, EventType.GO_TO, selectedTime, null, selectedTime, -1, ViewType.CURRENT, extras, null, null);
                 }
             }, t.year, t.month, t.monthDay);
