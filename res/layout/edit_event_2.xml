@@ -110,15 +110,16 @@
             android:layout_width="wrap_content"
             android:layout_marginTop="8dip"
             style="@style/TextAppearance.EditEvent_LabelSmall" />
+
         <com.android.ex.chips.RecipientEditTextView
             android:id="@+id/attendees"
-            android:layout_marginTop="2dip"
+            style="@style/TextAppearance.EditEvent_Value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress|textMultiLine|textCapWords"
+            android:layout_marginTop="2dip"
             android:hint="@string/hint_attendees"
             android:imeOptions="actionNext"
-            style="@style/TextAppearance.EditEvent_Value" />
+            android:inputType="textEmailAddress|textMultiLine|textCapWords" />
     </LinearLayout>
 
     <View
@@ -231,13 +232,14 @@
             android:layout_width="wrap_content"
             style="@style/TextAppearance.EditEvent_LabelSmall"
             android:paddingRight="4dip" />
+
         <Spinner
             android:id="@+id/availability"
-            android:entries="@array/availability"
             style="@style/TextAppearance.EditEvent_Spinner"
-            android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:contentDescription="@string/accessibility_reminder_showmeas"
+            android:entries="@array/availability"
             android:prompt="@string/presence_label" />
     </LinearLayout>
 
@@ -262,6 +264,70 @@
             android:layout_width="match_parent"
             android:contentDescription="@string/accessibility_reminder_privacy"
             android:prompt="@string/privacy_label" />
+    </LinearLayout>
+
+        <!-- PRECEDENCE -->
+    <LinearLayout
+        android:id="@+id/precedence_row"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="64dip"
+        android:focusable="true">
+        <TextView
+            android:id="@+id/predecence_label"
+            android:text="Precedence"
+            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            style="@style/TextAppearance.EditEvent_LabelSmall" />
+        <RadioGroup
+            android:id="@+id/precedence_value"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="16dip"
+            android:layout_marginRight="8dip"
+            android:paddingTop="5dip">
+            <RadioButton
+                android:id="@+id/min_precedence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="128dip"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                style="@style/TextAppearance.EditEvent"
+                android:text="!"
+                android:textSize="25dp"
+                android:textStyle="bold"
+                android:textColor="#ff0000" />
+            <RadioButton
+                android:id="@+id/mid_precedence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="128dip"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                style="@style/TextAppearance.EditEvent"
+                android:text="!!"
+                android:textSize="25dp"
+                android:textStyle="bold"
+                android:textColor="#ff0000" />
+            <RadioButton
+                android:id="@+id/max_precedence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="128dip"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                style="@style/TextAppearance.EditEvent"
+                android:text="!!!"
+                android:textSize="25dp"
+                android:textStyle="bold"
+                android:textColor="#ff0000" />
+        </RadioGroup>
+        <View
+            style="@style/EditEventSeparator"/>
     </LinearLayout>
 
 </LinearLayout>
