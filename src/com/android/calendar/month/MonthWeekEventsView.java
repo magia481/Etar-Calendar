@@ -40,6 +40,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
+import android.widget.Toast;
 
 import com.android.calendar.Event;
 import com.android.calendar.Utils;
@@ -705,6 +706,19 @@ public class MonthWeekEventsView extends SimpleWeekView {
                 }
                 eventCount++;
                 ySquare = newY;
+            }
+            iter = eventDay.iterator();
+            while (iter.hasNext()) {
+                Event event = iter.next();
+                Toast.makeText(getContext(),"Number of events on the "+(event.startDay-2458058)+"th day of this month is: "+eventCount,
+                        Toast.LENGTH_LONG).show();
+                for (int i = 0;i<eventCount;i++) {
+                    Toast.makeText(getContext(), "Event Title " +(i+1)+": "+ event.title,
+                            Toast.LENGTH_SHORT).show();
+                    if(iter.hasNext())
+                        event=iter.next();
+                }
+
             }
 
             int remaining = eventDay.size() - eventCount;
