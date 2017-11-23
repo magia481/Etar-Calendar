@@ -25,6 +25,9 @@ import android.support.v7.app.ActionBar;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.calendar.AbstractCalendarActivity;
 import com.android.calendar.CalendarController;
@@ -65,6 +68,7 @@ public class EditEventActivity extends AbstractCalendarActivity {
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         setContentView(R.layout.simple_frame_layout);
+
         dynamicTheme.onCreate(this);
         mEventInfo = getEventInfoFromIntent(icicle);
         mReminders = getReminderEntriesFromIntent();
@@ -73,7 +77,6 @@ public class EditEventActivity extends AbstractCalendarActivity {
 
 
         mEditFragment = (EditEventFragment) getFragmentManager().findFragmentById(R.id.main_frame);
-
         mIsMultipane = Utils.getConfigBool(this, R.bool.multiple_pane_config);
 
         if (mIsMultipane) {
