@@ -226,6 +226,12 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
     private ArrayList<ReminderEntry> mUnsupportedReminders = new ArrayList<ReminderEntry>();
     private String mRrule;
 
+    //agsener
+    private RadioButton presedence1;
+    private RadioButton presedence2;
+    private RadioButton presedence3;
+    //agsener
+
     public EditEventView(Activity activity, View view, EditDoneRunnable done,
                          boolean timeSelectedWasStartTime, boolean dateSelectedWasStartDate) {
 
@@ -238,6 +244,11 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
         mScrollView = (ScrollView) view.findViewById(R.id.scroll_view);
 
         // cache all the widgets
+        //agsener
+        presedence1 = (RadioButton) view.findViewById(R.id.min_precedence);
+        presedence2 = (RadioButton) view.findViewById(R.id.mid_precedence);
+        presedence3 = (RadioButton) view.findViewById(R.id.max_precedence);
+        //agsener
         mCalendarsSpinner = (Spinner) view.findViewById(R.id.calendars_spinner);
         mTitleTextView = (TextView) view.findViewById(R.id.title);
         mLocationTextView = (AutoCompleteTextView) view.findViewById(R.id.location);
@@ -642,7 +653,26 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
         mModel.mReminders.addAll(mUnsupportedReminders);
         mModel.normalizeReminders();
         mModel.mHasAlarm = mReminderItems.size() > 0;
-        mModel.mTitle = mTitleTextView.getText().toString();
+
+        //agsener
+        String presedence = "";
+
+        if(presedence1.isChecked())
+        {
+            presedence = "!";
+        }
+        else if(presedence2.isChecked())
+        {
+            presedence = "!!";
+        }
+        else if(presedence3.isChecked())
+        {
+            presedence = "!!!";
+        }
+
+
+        mModel.mTitle = presedence + mTitleTextView.getText().toString();
+        //agsener
         mModel.mAllDay = mAllDayCheckBox.isChecked();
         mModel.mLocation = mLocationTextView.getText().toString();
         mModel.mDescription = mDescriptionTextView.getText().toString();
@@ -1031,7 +1061,7 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
         if (!am.isEnabled() || mModel == null) {
             return;
         }
-        StringBuilder b = new StringBuilder();
+        StringBuilder b = new StringBuilder("");
         addFieldsRecursive(b, mView);
         CharSequence msg = b.toString();
 
