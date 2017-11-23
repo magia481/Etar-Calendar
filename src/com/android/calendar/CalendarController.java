@@ -19,26 +19,32 @@ package com.android.calendar;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract.Attendees;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
+import android.provider.ContactsContract;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.Toast;
 
 import com.android.calendar.event.EditEventActivity;
 import com.android.calendar.selectcalendars.SelectVisibleCalendarsActivity;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -423,18 +429,22 @@ public class CalendarController {
             // Create/View/Edit/Delete Event
             long endTime = (event.endTime == null) ? -1 : event.endTime.toMillis(false);
             if (event.eventType == EventType.CREATE_EVENT) {
+                Toast.makeText(mContext, "CREATE_EVENT_CalendarControllerClass", Toast.LENGTH_LONG).show();
                 launchCreateEvent(event.startTime.toMillis(false), endTime,
                         event.extraLong == EXTRA_CREATE_ALL_DAY, event.eventTitle,
                         event.calendarId);
                 return;
             } else if (event.eventType == EventType.VIEW_EVENT) {
+                Toast.makeText(mContext, "VIEW_EVENT_CalendarControllerClass", Toast.LENGTH_LONG).show();
                 launchViewEvent(event.id, event.startTime.toMillis(false), endTime,
                         event.getResponse());
                 return;
             } else if (event.eventType == EventType.EDIT_EVENT) {
+                Toast.makeText(mContext, "EDIT_EVENT_CalendarControllerClass", Toast.LENGTH_LONG).show();
                 launchEditEvent(event.id, event.startTime.toMillis(false), endTime, true);
                 return;
             } else if (event.eventType == EventType.VIEW_EVENT_DETAILS) {
+                Toast.makeText(mContext, "VIEW_EVENT_DETAILS_CalendarControllerClass", Toast.LENGTH_LONG).show();
                 launchEditEvent(event.id, event.startTime.toMillis(false), endTime, false);
                 return;
             } else if (event.eventType == EventType.DELETE_EVENT) {
@@ -590,7 +600,8 @@ public class CalendarController {
     }
 
     public void launchViewEvent(long eventId, long startMillis, long endMillis, int response) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
+        //final'i sil.
+        final Intent intent = new Intent(Intent.ACTION_VIEW);
         Uri eventUri = ContentUris.withAppendedId(Events.CONTENT_URI, eventId);
         intent.setData(eventUri);
         intent.setClass(mContext, AllInOneActivity.class);
@@ -598,7 +609,41 @@ public class CalendarController {
         intent.putExtra(EXTRA_EVENT_END_TIME, endMillis);
         intent.putExtra(ATTENDEE_STATUS, response);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        mContext.startActivity(intent);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setTitle("Davetlilerin Telefon Numaraları:");
+            builder.setMessage(getPhoneNumbers().toString());
+            builder.setCancelable(false);
+            builder.setNeutralButton("TAMAM", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    //Tamam butonuna basılınca yapılacaklar
+                    mContext.startActivity(intent);
+                }
+            });
+            builder.show();
+        //mContext.startActivity(intent);
+    }
+    //İpek
+    private ArrayList<String> getPhoneNumbers() {
+        ArrayList<String> mPhoneNumbers = new ArrayList<>();
+        Cursor cursor = mContext.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        while (cursor.moveToNext()) {
+            String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+            String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+            String hasPhone = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+
+            if (Boolean.parseBoolean(hasPhone)) {
+                // You know it has a number so now query it like this
+                Cursor phones = mContext.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+                while (phones.moveToNext()) {
+                    String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    mPhoneNumbers.add(phoneNumber);
+                    //Toast.makeText(mContext.getApplicationContext(), phoneNumber, Toast.LENGTH_SHORT).show();
+                }
+                phones.close();
+            }
+
+        }
+        return mPhoneNumbers;
     }
 
     private void launchEditEvent(long eventId, long startMillis, long endMillis, boolean edit) {
