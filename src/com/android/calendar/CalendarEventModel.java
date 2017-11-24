@@ -16,13 +16,16 @@
 
 package com.android.calendar;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.provider.CalendarContract.Attendees;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Reminders;
+import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.text.util.Rfc822Token;
 import android.util.Log;
@@ -332,7 +335,19 @@ public class CalendarEventModel implements Serializable {
             b.append("\n");
             i++;
         }
+        i--;
+        b.append("Toplam "+i+" kişiye email atılacak.");
+        b.append("\n");
         return b.toString();
+    }
+    // Sadece mail adreslerini bir listeye ekler. contactMap ile karşılaştırma yapmak için yazdım (EditEventView'de)
+    public ArrayList<String> getAttendeesMailsList(){
+        ArrayList<String> emails = new ArrayList<>();
+        for (Attendee attendee : mAttendeesList.values()) {
+            String email = attendee.mEmail;
+            emails.add(email);
+        }
+        return emails;
     }
 
     @Override

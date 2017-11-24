@@ -33,6 +33,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Attendees;
 import android.provider.CalendarContract.Calendars;
@@ -64,7 +65,10 @@ import static android.provider.CalendarContract.EXTRA_EVENT_END_TIME;
 
 public class CalendarController {
     private ArrayList<String> mPhoneNumbers = new ArrayList<>();
-    public static ArrayList<String> guests = new ArrayList<>();
+    //İpek
+    public static  ArrayList<String> guestsPhones = new ArrayList<>();  //Sadece numaraları tutar.
+    public static ArrayList<String> guests = new ArrayList<>(); //Emailleri tutar.
+    //public static LinkedHashMap<String,String> contactMap = new LinkedHashMap<>();  //Rehberdeki bilgileri <email, number> olarak tutar.
     public static final String EVENT_EDIT_ON_LAUNCH = "editMode";
     public static final int MIN_CALENDAR_YEAR = 1970;
     public static final int MAX_CALENDAR_YEAR = 2036;
@@ -622,8 +626,9 @@ public class CalendarController {
         // Cursor cursor = mContext.getContentResolver().query(mContext.getContentResolver(), eventId, projection);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-            builder.setTitle("Davetiye gönderilecek numaralar: ");
-            builder.setMessage(guests.toString().substring(1,guests.toString().length()-1)+"\n"+getPhoneNumbers().toString().substring(1,getPhoneNumbers().toString().length()-1));
+            builder.setTitle("Davetlilerin İletişim Bilgileri:");
+            builder.setMessage(guests.toString().substring(1,guests.toString().length()-1)+"\nTelefonları:\n"+ getPhoneNumbers().toString().substring(1,guestsPhones.toString().length()-1));
+           // builder.setMessage(guestsPhones.toString());
             builder.setCancelable(false);
             builder.setNeutralButton("TAMAM", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -632,30 +637,187 @@ public class CalendarController {
                 }
             });
             builder.show();
+        /*final AlertDialog alert = builder.create();
+        alert.show();
+// Hide after some seconds
+        final Handler handler  = new Handler();
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (alert.isShowing()) {
+                    alert.dismiss();
+                }
+            }
+        };
+
+        alert.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                handler.removeCallbacks(runnable);
+            }
+        });
+
+        handler.postDelayed(runnable, 10000);  */
         //mContext.startActivity(intent);
     }
-    //İpek
-    private ArrayList<String> getPhoneNumbers() {
-        Cursor cursor = mContext.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-        while (cursor.moveToNext()) {
-            String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-            String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-            String hasPhone = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
 
-            if (Boolean.parseBoolean(hasPhone)) {
-                // You know it has a number so now query it like this
-                Cursor phones = mContext.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
-                while (phones.moveToNext()) {
-                    String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                    mPhoneNumbers.add(phoneNumber);
-                    //Toast.makeText(mContext.getApplicationContext(), phoneNumber, Toast.LENGTH_SHORT).show();
-                }
-                phones.close();
-            }
-
+   /* public String getAlertDialogMessage(LinkedHashMap<String,String> map){
+        StringBuilder sb = new StringBuilder();
+        int count = 1 ;
+        for(String email : map.keySet()){
+            sb.append(count +".) "+"Email: ").append(email);
+            sb.append("\nTelefon numarası: "+ guestsPhones.get(count-1));
+            sb.append("\n");
+            count++;
         }
-        return mPhoneNumbers;
+        count--;
+        sb.append("\n");
+        sb.append("Toplam "+count+" kişiye davetiye gönderilecek.");
+        return sb.toString();
     }
+    */
+   private ArrayList<String> getPhoneNumbers() {
+       ContentResolver cr = mContext.getContentResolver();
+       Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
+               null, null, null);
+       if (cursor.moveToFirst()) {
+           String contactId =
+                   cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+           //
+           //  Get all phone numbers.
+           //
+           Cursor phones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                   ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+           //Cursor emails = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + contactId, null, null);
+    int count=1;
+           while (phones.moveToNext()) {
+               guestsPhones.add(""+count+".) ");
+               String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+               int type = phones.getInt(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+               switch (type) {
+                   case ContactsContract.CommonDataKinds.Phone.TYPE_HOME:
+                       guestsPhones.add("Home phone: " + number + "\n");
+                       //  map.put(emailAddress,number);
+                       break;
+                   case ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE:
+                       guestsPhones.add("Mobile phone: " + number + "\n");
+                       //map.put(emailAddress,number);
+                       // do something with the Mobile number here...
+                       break;
+                   case ContactsContract.CommonDataKinds.Phone.TYPE_WORK:
+                       guestsPhones.add("Work phone: " + number + "\n");
+                       //map.put(emailAddress,number);
+                       // do something with the Work number here...
+                       break;
+               }
+               count++;
+           }
+           phones.close();
+       }
+       return guestsPhones;
+   }
+   public String getAlertDialogMessage(ArrayList<String> list){
+       StringBuilder sb = new StringBuilder();
+       int count = 1 ;
+       for(String email : list){
+           sb.append(count +".) "+"Email: ").append(email);
+           sb.append("\n"+guestsPhones.get(count-1));
+           sb.append("\n");
+           count++;
+       }
+       count--;
+       sb.append("\n");
+       sb.append("Toplam "+count+" kişiye davetiye gönderilecek.");
+       return sb.toString();
+   }
+   /* public static ArrayList<String> getPhoneNumbers(Context context) {
+        ArrayList<String> liste = new ArrayList<>();
+       // LinkedHashMap<String,String> map = new LinkedHashMap<>();   //<key, value> = <e-mail, number>
+        ContentResolver cr = context.getContentResolver();
+        Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            String contactId =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+            //
+            //  Get all phone numbers.
+            //
+            Cursor phones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+            //Cursor emails = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + contactId, null, null);
+
+            while (phones.moveToNext()) {
+                String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                int type = phones.getInt(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+                switch (type) {
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_HOME:
+                        liste.add("Home phone: " + number + "\n");
+                      //  map.put(emailAddress,number);
+                        break;
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE:
+                        liste.add("Mobile phone: " + number + "\n");
+                        //map.put(emailAddress,number);
+                        // do something with the Mobile number here...
+                        break;
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_WORK:
+                        liste.add("Work phone: " + number + "\n");
+                        //map.put(emailAddress,number);
+                        // do something with the Work number here...
+                        break;
+                }
+            }
+            phones.close();
+        }
+        return liste;
+    } */
+    //İpek
+    /*public static  LinkedHashMap<String,String> getPhoneNumbers(Context context) {
+        ArrayList<String> liste = new ArrayList<>();
+        LinkedHashMap<String,String> map = new LinkedHashMap<>();   //<key, value> = <e-mail, number>
+        ContentResolver cr = context.getContentResolver();
+        Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            String contactId =
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+            //
+            //  Get all phone numbers.
+            //
+            Cursor phones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+            Cursor emails = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = " + contactId, null, null);
+
+            while (phones.moveToNext() && emails.moveToNext()) {
+                String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                String emailAddress = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+
+                int type = phones.getInt(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+                switch (type) {
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_HOME:
+                        liste.add("Home phone: " + number + "\n");
+                        map.put(emailAddress,number);
+                        break;
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE:
+                        liste.add("Mobile phone: " + number + "\n");
+                        map.put(emailAddress,number);
+                        // do something with the Mobile number here...
+                        break;
+                    case ContactsContract.CommonDataKinds.Phone.TYPE_WORK:
+                        liste.add("Work phone: " + number + "\n");
+                        map.put(emailAddress,number);
+                        // do something with the Work number here...
+                        break;
+                }
+            }
+            phones.close();
+            emails.close();
+        }
+        return map;
+    }
+    */
+
 
     private void launchEditEvent(long eventId, long startMillis, long endMillis, boolean edit) {
         Uri uri = ContentUris.withAppendedId(Events.CONTENT_URI, eventId);

@@ -167,7 +167,7 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
     TextView mTimezoneLabel;
     LinearLayout mRemindersContainer;
     //İpek
-    TextView guestButton;
+    //TextView guestButton;
     MultiAutoCompleteTextView mAttendeesList;
     View mCalendarSelectorGroup;
     View mCalendarSelectorWrapper;
@@ -289,7 +289,7 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
         mEndHomeGroup = view.findViewById(R.id.to_row_home_tz);
         mAttendeesList = (MultiAutoCompleteTextView) view.findViewById(R.id.attendees);
         //İpek
-        guestButton = (TextView) view.findViewById(R.id.guest_button);
+        //guestButton = (TextView) view.findViewById(R.id.guest_button);
        /* guestButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -703,31 +703,28 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
             mModel.mAttendeesList.clear();
             //İpek
             CalendarController.guests.clear();
+            //CalendarController.guestsPhones.clear();
+            //CalendarController.contactMap.clear();
             //İpek
             //Toast.makeText(mActivity.getApplicationContext(), getPhoneNumbers().toString(), Toast.LENGTH_SHORT).show();)
             mModel.addAttendees(mAttendeesList.getText().toString(), mEmailValidator);
             //İpek
-            CalendarController.guests.add(mModel.getAttendeesMails());
+            //Text i girdiği anda davetlileri listeye aktarır.  // E-maillerini aktarır.
+            CalendarController.guests.add(mModel.getAttendeesMails().toString());
+            // add phones
+            //CalendarController.guestsPhones = CalendarController.getPhoneNumbers(mActivity);
+
+            /*  add contactMap
+            CalendarController.contactMap = CalendarController.getPhoneNumbers(mActivity);
+            for(String mail : mModel.getAttendeesMailsList())
+            {
+                if(CalendarController.contactMap.containsKey(mail)){
+                    // Davet edilen ile rehberdeki mail uyuşuyor demek. Telefon numarasını ekle..
+                    CalendarController.guestsPhones.add(CalendarController.contactMap.get(mail));
+                }
+            } */
             mEmailValidator.setRemoveInvalid(false);
-            //İpek
-            /*AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-            builder.setTitle("Davetliler:");
-            builder.setMessage(mAttendeesList.getText().toString());
-            builder.setNegativeButton("İPTAL", new DialogInterface.OnClickListener(){
-                public void onClick(DialogInterface dialog, int id) {
 
-                    //İptal butonuna basılınca yapılacaklar.Sadece kapanması isteniyorsa boş bırakılacak
-
-                }
-            });
-
-            builder.setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    //Tamam butonuna basılınca yapılacaklar
-                    dialog.cancel();
-                }
-            });
-            builder.show();  */
         }
 
         // If this was a new event we need to fill in the Calendar information
@@ -1386,26 +1383,6 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
 
         }
         Toast.makeText(mActivity, "Davetliler: \n"+mAttendeesList.getText().toString(),Toast.LENGTH_LONG).show();
-        /*  ipek
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        builder.setTitle("Davetliler");
-        builder.setMessage("Uyarı mesajı yaz!!!");
-        builder.setNegativeButton("İPTAL", new DialogInterface.OnClickListener(){
-            public void onClick(DialogInterface dialog, int id) {
-
-                //İptal butonuna basılınca yapılacaklar.Sadece kapanması isteniyorsa boş bırakılacak
-
-            }
-        });
-
-
-        builder.setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                //Tamam butonuna basılınca yapılacaklar
-                dialog.cancel();
-            }
-        });
-        builder.show();  */
     }
 
     private void updateRemindersVisibility(int numReminders) {
