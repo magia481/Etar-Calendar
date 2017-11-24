@@ -75,6 +75,7 @@ import android.widget.ImageView;
 import android.widget.OverScroller;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.android.calendar.CalendarController.EventType;
@@ -124,6 +125,7 @@ public class DayView extends View implements View.OnCreateContextMenuListener,
         Calendars.CALENDAR_ACCESS_LEVEL, // 1
         Calendars.OWNER_ACCOUNT, // 2
     };
+    private static boolean display=AllInOneActivity.getDisplay();
     private static final int CALENDARS_INDEX_ACCESS_LEVEL = 1;
     private static final int CALENDARS_INDEX_OWNER_ACCOUNT = 2;
     private static final String CALENDARS_WHERE = Calendars._ID + "=%d";
@@ -3082,6 +3084,12 @@ public class DayView extends View implements View.OnCreateContextMenuListener,
                 && mSelectionMode != SELECTION_HIDDEN) {
             computeNeighbors();
         }
+        String sDate = AllInOneActivity.getSelectedDate();
+        android.support.v7.app.AlertDialog.Builder aDialog =
+                new android.support.v7.app.AlertDialog.Builder(getContext());
+        aDialog.setMessage("You have " + numEvents + " events at " + sDate);
+        aDialog.create().show();
+
     }
 
     // Computes the "nearest" neighbor event in four directions (left, right,

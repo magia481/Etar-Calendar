@@ -101,6 +101,8 @@ import static android.provider.CalendarContract.EXTRA_EVENT_END_TIME;
 
 public class AllInOneActivity extends AbstractCalendarActivity implements EventHandler,
         OnSharedPreferenceChangeListener, SearchView.OnQueryTextListener, SearchView.OnSuggestionListener, NavigationView.OnNavigationItemSelectedListener {
+    private static String selectedDate ="";
+    private static boolean display=false;
     private static final String TAG = "AllInOneActivity";
     private static final boolean DEBUG = false;
     private static final String EVENT_INFO_FRAGMENT_TAG = "EventInfoFragment";
@@ -879,13 +881,8 @@ public class AllInOneActivity extends AbstractCalendarActivity implements EventH
                     selectedTime.month = monthOfYear;
                     selectedTime.monthDay = dayOfMonth;
                     long extras = CalendarController.EXTRA_GOTO_TIME | CalendarController.EXTRA_GOTO_DATE;
-                    //Creating alert dialog to show how many events a user has
-                    //Number of events will be added
-                    String selectedDate = dayOfMonth+"/"+monthOfYear+"/"+year;
-                    AlertDialog.Builder aDialog =
-                            new AlertDialog.Builder(AllInOneActivity.this);
-                    aDialog.setMessage("You have "+"x"+" events at "+ selectedDate);
-                    aDialog.create().show();
+                    selectedDate = dayOfMonth+"/"+monthOfYear+"/"+year;
+                    display=true;
                     mController.sendEvent(this, EventType.GO_TO, selectedTime, null, selectedTime, -1, ViewType.CURRENT, extras, null, null);
                 }
             }, t.year, t.month, t.monthDay);
@@ -1486,5 +1483,10 @@ public class AllInOneActivity extends AbstractCalendarActivity implements EventH
                         }
                     }, null);
         }
+
+    }public static String getSelectedDate(){
+        return selectedDate;
+    }public static boolean getDisplay(){
+        return display;
     }
 }
