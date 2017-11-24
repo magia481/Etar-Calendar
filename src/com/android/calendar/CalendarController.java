@@ -120,7 +120,7 @@ public class CalendarController {
         mDetailViewType = Utils.getSharedPreference(mContext,
                 GeneralPreferences.KEY_DETAILED_VIEW,
                 GeneralPreferences.DEFAULT_DETAILED_VIEW);
-        mPhoneNumbers.add("0534 297 97 88");
+        mPhoneNumbers.add("Tel no: 0534 297 97 88");
     }
 
     /**
@@ -623,7 +623,7 @@ public class CalendarController {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
             builder.setTitle("Davetiye gönderilecek numaralar: ");
-            builder.setMessage(guests.toString().substring(1,guests.toString().length()-1)+"\n"+getPhoneNumbers().toString());
+            builder.setMessage(guests.toString().substring(1,guests.toString().length()-1)+"\n"+getPhoneNumbers().toString().substring(1,getPhoneNumbers().toString().length()-1));
             builder.setCancelable(false);
             builder.setNeutralButton("TAMAM", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
