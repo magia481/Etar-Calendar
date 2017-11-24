@@ -41,6 +41,7 @@ import com.android.calendar.AsyncQueryService;
 import com.android.calendar.CalendarEventModel;
 import com.android.calendar.CalendarEventModel.Attendee;
 import com.android.calendar.CalendarEventModel.ReminderEntry;
+import com.android.calendar.Event;
 import com.android.calendar.Utils;
 import com.android.calendarcommon2.DateException;
 import com.android.calendarcommon2.EventRecurrence;
@@ -1030,6 +1031,10 @@ public class EditEventHelper {
         model.mRrule = eventRecurrence.toString();
     }
 
+    //agsener
+    //public static void
+    //agsener
+
     /**
      * Uses an event cursor to fill in the given model This method assumes the
      * cursor used {@link #EVENT_PROJECTION} as it's query projection. It uses
@@ -1048,7 +1053,14 @@ public class EditEventHelper {
         cursor.moveToFirst();
 
         model.mId = cursor.getInt(EVENT_INDEX_ID);
-        model.mTitle = cursor.getString(EVENT_INDEX_TITLE);
+        //agsener
+        String eventName = cursor.getString(EVENT_INDEX_TITLE);
+        if(eventName.indexOf('-') >= 0){
+            eventName = eventName.substring(eventName.indexOf('-')+1);
+        }
+        model.mTitle = eventName;
+        //agsener
+        //model.mTitle = cursor.getString(EVENT_INDEX_TITLE);
         model.mDescription = cursor.getString(EVENT_INDEX_DESCRIPTION);
         model.mLocation = cursor.getString(EVENT_INDEX_EVENT_LOCATION);
         model.mAllDay = cursor.getInt(EVENT_INDEX_ALL_DAY) != 0;

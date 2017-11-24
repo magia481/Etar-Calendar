@@ -659,17 +659,16 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
 
         if(presedence1.isChecked())
         {
-            presedence = "!";
+            presedence = "!-";
         }
         else if(presedence2.isChecked())
         {
-            presedence = "!!";
+            presedence = "!!-";
         }
         else if(presedence3.isChecked())
         {
-            presedence = "!!!";
+            presedence = "!!!-";
         }
-
 
         mModel.mTitle = presedence + mTitleTextView.getText().toString();
         //agsener
