@@ -19,9 +19,11 @@ package com.android.calendar.event;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.app.DownloadManager;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,6 +37,7 @@ import android.provider.CalendarContract.Attendees;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Reminders;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.text.InputFilter;
 import android.text.TextUtils;
@@ -66,7 +69,9 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
+import com.android.calendar.CalendarController;
 import com.android.calendar.CalendarEventModel;
 import com.android.calendar.CalendarEventModel.Attendee;
 import com.android.calendar.CalendarEventModel.ReminderEntry;
@@ -94,6 +99,8 @@ import com.android.timezonepicker.TimeZoneInfo;
 import com.android.timezonepicker.TimeZonePickerDialog;
 import com.android.timezonepicker.TimeZonePickerUtils;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
@@ -107,7 +114,6 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
         DialogInterface.OnClickListener, OnItemSelectedListener,
         RecurrencePickerDialog.OnRecurrenceSetListener,
         TimeZonePickerDialog.OnTimeZoneSetListener {
-
     private static final String TAG = "EditEvent";
     private static final String GOOGLE_SECONDARY_CALENDAR = "calendar.google.com";
     private static final String PERIOD_SPACE = ". ";
@@ -160,6 +166,8 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
     TextView mTimezoneTextView;
     TextView mTimezoneLabel;
     LinearLayout mRemindersContainer;
+    //İpek
+    TextView guestButton;
     MultiAutoCompleteTextView mAttendeesList;
     View mCalendarSelectorGroup;
     View mCalendarSelectorWrapper;
@@ -175,6 +183,7 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
     private int[] mOriginalPadding = new int[4];
     private ProgressDialog mLoadingCalendarsDialog;
     private AlertDialog mNoCalendarsDialog;
+    private AlertDialog mGuestDialog;
     private DialogFragment mTimezoneDialog;
     private Activity mActivity;
     private EditDoneRunnable mDone;
@@ -225,6 +234,8 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
     private ArrayList<LinearLayout> mReminderItems = new ArrayList<LinearLayout>(0);
     private ArrayList<ReminderEntry> mUnsupportedReminders = new ArrayList<ReminderEntry>();
     private String mRrule;
+    //İpek
+    private ArrayList<String> mPhoneNumbers;
 
     public EditEventView(Activity activity, View view, EditDoneRunnable done,
                          boolean timeSelectedWasStartTime, boolean dateSelectedWasStartDate) {
@@ -277,7 +288,14 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
         mStartHomeGroup = view.findViewById(R.id.from_row_home_tz);
         mEndHomeGroup = view.findViewById(R.id.to_row_home_tz);
         mAttendeesList = (MultiAutoCompleteTextView) view.findViewById(R.id.attendees);
-
+        //İpek
+        guestButton = (TextView) view.findViewById(R.id.guest_button);
+       /* guestButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mActivity,"Guest Butonuna basıldı",Toast.LENGTH_LONG).show();
+            }
+        });  */
         mColorPickerNewEvent = view.findViewById(R.id.change_color_new_event);
         mColorPickerExistingEvent = view.findViewById(R.id.change_color_existing_event);
 
@@ -400,7 +418,27 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
             mDatePickerDialog.setOnDateSetListener(new DateListener(v));
         }
     }
+    //İpek
+    /*private ArrayList<String> getPhoneNumbers() {
+        Cursor cursor = mActivity.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+        while (cursor.moveToNext()) {
+            String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+            String hasPhone = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
 
+            if (Boolean.parseBoolean(hasPhone)) {
+                // You know it has a number so now query it like this
+                Cursor phones = mActivity.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+                while (phones.moveToNext()) {
+                    String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    mPhoneNumbers.add(phoneNumber);
+                    Toast.makeText(mActivity.getApplicationContext(), phoneNumber, Toast.LENGTH_SHORT).show();
+                }
+                phones.close();
+            }
+
+        }
+        return mPhoneNumbers;
+    }  */
     /**
      * Loads an integer array asset into a list.
      */
@@ -663,8 +701,33 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
             mEmailValidator.setRemoveInvalid(true);
             mAttendeesList.performValidation();
             mModel.mAttendeesList.clear();
+            //İpek
+            CalendarController.guests.clear();
+            //İpek
+            //Toast.makeText(mActivity.getApplicationContext(), getPhoneNumbers().toString(), Toast.LENGTH_SHORT).show();)
             mModel.addAttendees(mAttendeesList.getText().toString(), mEmailValidator);
+            //İpek
+            CalendarController.guests.add(mModel.getAttendeesMails());
             mEmailValidator.setRemoveInvalid(false);
+            //İpek
+            /*AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+            builder.setTitle("Davetliler:");
+            builder.setMessage(mAttendeesList.getText().toString());
+            builder.setNegativeButton("İPTAL", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int id) {
+
+                    //İptal butonuna basılınca yapılacaklar.Sadece kapanması isteniyorsa boş bırakılacak
+
+                }
+            });
+
+            builder.setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    //Tamam butonuna basılınca yapılacaklar
+                    dialog.cancel();
+                }
+            });
+            builder.show();  */
         }
 
         // If this was a new event we need to fill in the Calendar information
@@ -1083,7 +1146,7 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
         String when;
         int flags = DateUtils.FORMAT_SHOW_DATE;
         String tz = mTimezone;
-        if (mModel.mAllDay) {
+        if (mAllDay) {
             flags |= DateUtils.FORMAT_SHOW_WEEKDAY;
             tz = Time.TIMEZONE_UTC;
         } else {
@@ -1150,6 +1213,11 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
             if (prepareForSave() && fillModelFromUI()) {
                 int exit = userVisible ? Utils.DONE_EXIT : 0;
                 mDone.setDoneCode(Utils.DONE_SAVE | exit);
+                //İpek
+                 AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                        builder.setTitle("Davetliler");
+                        builder.setMessage(mModel.mAttendeesList.toString());
+                mGuestDialog = builder.show();
                 mDone.run();
             } else if (userVisible) {
                 mDone.setDoneCode(Utils.DONE_EXIT);
@@ -1312,7 +1380,32 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
             // Adding a comma separator between email addresses to prevent a chips MR1.1 bug
             // in which email addresses are concatenated together with no separator.
             mAttendeesList.append(attendee.mEmail + ", ");
+            //İpek
+           // CalendarController.guests.add(attendee.mName+", "+attendee.mEmail);
+            //CalendarController.guests.add(mModel.getAttendeesString());
+
         }
+        Toast.makeText(mActivity, "Davetliler: \n"+mAttendeesList.getText().toString(),Toast.LENGTH_LONG).show();
+        /*  ipek
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        builder.setTitle("Davetliler");
+        builder.setMessage("Uyarı mesajı yaz!!!");
+        builder.setNegativeButton("İPTAL", new DialogInterface.OnClickListener(){
+            public void onClick(DialogInterface dialog, int id) {
+
+                //İptal butonuna basılınca yapılacaklar.Sadece kapanması isteniyorsa boş bırakılacak
+
+            }
+        });
+
+
+        builder.setPositiveButton("TAMAM", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                //Tamam butonuna basılınca yapılacaklar
+                dialog.cancel();
+            }
+        });
+        builder.show();  */
     }
 
     private void updateRemindersVisibility(int numReminders) {

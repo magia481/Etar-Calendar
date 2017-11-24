@@ -16,6 +16,7 @@
 
 package com.android.calendar;
 
+import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -28,13 +29,16 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.provider.CalendarContract.Attendees;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.provider.ContactsContract;
+import android.support.v4.app.ActivityCompat;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.Pair;
@@ -44,6 +48,7 @@ import com.android.calendar.event.EditEventActivity;
 import com.android.calendar.selectcalendars.SelectVisibleCalendarsActivity;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -52,11 +57,14 @@ import java.util.Map.Entry;
 import java.util.WeakHashMap;
 
 import static android.provider.CalendarContract.Attendees.ATTENDEE_STATUS;
+import static android.provider.CalendarContract.Attendees.query;
 import static android.provider.CalendarContract.EXTRA_EVENT_ALL_DAY;
 import static android.provider.CalendarContract.EXTRA_EVENT_BEGIN_TIME;
 import static android.provider.CalendarContract.EXTRA_EVENT_END_TIME;
 
 public class CalendarController {
+    private ArrayList<String> mPhoneNumbers = new ArrayList<>();
+    public static ArrayList<String> guests = new ArrayList<>();
     public static final String EVENT_EDIT_ON_LAUNCH = "editMode";
     public static final int MIN_CALENDAR_YEAR = 1970;
     public static final int MAX_CALENDAR_YEAR = 2036;
@@ -83,8 +91,8 @@ public class CalendarController {
     // This uses a LinkedHashMap so that we can replace fragments based on the
     // view id they are being expanded into since we can't guarantee a reference
     // to the handler will be findable
-    private final LinkedHashMap<Integer,EventHandler> eventHandlers =
-            new LinkedHashMap<Integer,EventHandler>(5);
+    private final LinkedHashMap<Integer, EventHandler> eventHandlers =
+            new LinkedHashMap<Integer, EventHandler>(5);
     private final LinkedList<Integer> mToBeRemovedEventHandlers = new LinkedList<Integer>();
     private final LinkedHashMap<Integer, EventHandler> mToBeAddedEventHandlers = new LinkedHashMap<
             Integer, EventHandler>();
@@ -112,6 +120,7 @@ public class CalendarController {
         mDetailViewType = Utils.getSharedPreference(mContext,
                 GeneralPreferences.KEY_DETAILED_VIEW,
                 GeneralPreferences.DEFAULT_DETAILED_VIEW);
+        mPhoneNumbers.add("0534 297 97 88");
     }
 
     /**
@@ -609,9 +618,12 @@ public class CalendarController {
         intent.putExtra(EXTRA_EVENT_END_TIME, endMillis);
         intent.putExtra(ATTENDEE_STATUS, response);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //İpek
+        // Cursor cursor = mContext.getContentResolver().query(mContext.getContentResolver(), eventId, projection);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-            builder.setTitle("Davetlilerin Telefon Numaraları:");
-            builder.setMessage(getPhoneNumbers().toString());
+            builder.setTitle("Davetiye gönderilecek numaralar: ");
+            builder.setMessage(guests.toString().substring(1,guests.toString().length()-1)+"\n"+getPhoneNumbers().toString());
             builder.setCancelable(false);
             builder.setNeutralButton("TAMAM", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -624,7 +636,6 @@ public class CalendarController {
     }
     //İpek
     private ArrayList<String> getPhoneNumbers() {
-        ArrayList<String> mPhoneNumbers = new ArrayList<>();
         Cursor cursor = mContext.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
         while (cursor.moveToNext()) {
             String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
