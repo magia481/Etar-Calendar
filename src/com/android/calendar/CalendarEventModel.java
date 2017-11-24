@@ -25,6 +25,8 @@ import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Reminders;
 import android.text.TextUtils;
 import android.text.util.Rfc822Token;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.android.calendar.event.EditEventHelper;
 import com.android.calendar.event.EventColorCache;
@@ -191,7 +193,10 @@ public class CalendarEventModel implements Serializable {
                 if (!TextUtils.isEmpty(email) && email.contains("@")) {
                     email = email.trim();
                     if (!mAttendeesList.containsKey(email)) {
+                        Toast.makeText(context, "Email: "+email, Toast.LENGTH_LONG).show();
+                        //Log.w("myApp", email);
                         mAttendeesList.put(email, new Attendee("", email));
+                        //CalendarController.guests.add(email+", ");
                     }
                 }
             }
@@ -314,6 +319,18 @@ public class CalendarEventModel implements Serializable {
             b.append("name:").append(name);
             b.append(" email:").append(email);
             b.append(" status:").append(status);
+        }
+        return b.toString();
+    }
+    //İpek
+    public String getAttendeesMails(){
+        StringBuilder b = new StringBuilder();
+        int i = 1;
+        for (Attendee attendee : mAttendeesList.values()) {
+            String email = attendee.mEmail;
+            b.append(i+".) "+"email: ").append(email);
+            b.append("\n");
+            i++;
         }
         return b.toString();
     }
