@@ -234,8 +234,6 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
     private ArrayList<LinearLayout> mReminderItems = new ArrayList<LinearLayout>(0);
     private ArrayList<ReminderEntry> mUnsupportedReminders = new ArrayList<ReminderEntry>();
     private String mRrule;
-    //İpek
-    private ArrayList<String> mPhoneNumbers;
 
     public EditEventView(Activity activity, View view, EditDoneRunnable done,
                          boolean timeSelectedWasStartTime, boolean dateSelectedWasStartDate) {
@@ -418,27 +416,6 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
             mDatePickerDialog.setOnDateSetListener(new DateListener(v));
         }
     }
-    //İpek
-    /*private ArrayList<String> getPhoneNumbers() {
-        Cursor cursor = mActivity.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-        while (cursor.moveToNext()) {
-            String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-            String hasPhone = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-
-            if (Boolean.parseBoolean(hasPhone)) {
-                // You know it has a number so now query it like this
-                Cursor phones = mActivity.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
-                while (phones.moveToNext()) {
-                    String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                    mPhoneNumbers.add(phoneNumber);
-                    Toast.makeText(mActivity.getApplicationContext(), phoneNumber, Toast.LENGTH_SHORT).show();
-                }
-                phones.close();
-            }
-
-        }
-        return mPhoneNumbers;
-    }  */
     /**
      * Loads an integer array asset into a list.
      */
@@ -701,28 +678,15 @@ public class EditEventView implements View.OnClickListener, DialogInterface.OnCa
             mEmailValidator.setRemoveInvalid(true);
             mAttendeesList.performValidation();
             mModel.mAttendeesList.clear();
-            //İpek
+
             CalendarController.guests.clear();
-            //CalendarController.guestsPhones.clear();
-            //CalendarController.contactMap.clear();
-            //İpek
-            //Toast.makeText(mActivity.getApplicationContext(), getPhoneNumbers().toString(), Toast.LENGTH_SHORT).show();)
             mModel.addAttendees(mAttendeesList.getText().toString(), mEmailValidator);
             //İpek
             //Text i girdiği anda davetlileri listeye aktarır.  // E-maillerini aktarır.
             CalendarController.guests.add(mModel.getAttendeesMails().toString());
             // add phones
-            //CalendarController.guestsPhones = CalendarController.getPhoneNumbers(mActivity);
+            //CalendarController.guests = mModel.getAttendeesMailsList();
 
-            /*  add contactMap
-            CalendarController.contactMap = CalendarController.getPhoneNumbers(mActivity);
-            for(String mail : mModel.getAttendeesMailsList())
-            {
-                if(CalendarController.contactMap.containsKey(mail)){
-                    // Davet edilen ile rehberdeki mail uyuşuyor demek. Telefon numarasını ekle..
-                    CalendarController.guestsPhones.add(CalendarController.contactMap.get(mail));
-                }
-            } */
             mEmailValidator.setRemoveInvalid(false);
 
         }

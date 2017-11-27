@@ -331,7 +331,7 @@ public class CalendarEventModel implements Serializable {
         int i = 1;
         for (Attendee attendee : mAttendeesList.values()) {
             String email = attendee.mEmail;
-            b.append(i+".) "+"email: ").append(email);
+            b.append(i+".) "+"Email: ").append(email);
             b.append("\n");
             i++;
         }
@@ -340,7 +340,7 @@ public class CalendarEventModel implements Serializable {
         b.append("\n");
         return b.toString();
     }
-    // Sadece mail adreslerini bir listeye ekler. contactMap ile karşılaştırma yapmak için yazdım (EditEventView'de)
+    // Sadece mail adreslerini bir listeye ekler. contactMap ile karşılaştırma yapmak için yazdım (Calendar controller'da)
     public ArrayList<String> getAttendeesMailsList(){
         ArrayList<String> emails = new ArrayList<>();
         for (Attendee attendee : mAttendeesList.values()) {
